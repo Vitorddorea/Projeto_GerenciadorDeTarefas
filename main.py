@@ -20,14 +20,36 @@ def menu():
 
     """
     titulos('GERENCIADOR DE TAREFAS')
-    print('1- Criar Tarefa')
+    print('1 - Criar Tarefa')
     print('2 - Verficar de Urgência')
-    print('3 - Atualizar Prioridade')
+    print('3 - Atualizar Tarefa')
     print('4 - Concluir Tarefa')
     print('5 - Excluir ')
     print('6 - Relatório')
     print('7 - Encerrar programa')
     print('=' * 35)
+
+
+def tarefaExiste(gerenciador):
+    if not gerenciador:
+        print('Nenhuma tarefa cadastrada.')
+        return None
+     
+    try:
+        escolha = int(input('Digite o ID da tarefa: '))
+        return escolha 
+    except ValueError:
+        print('\33[31mERRO! Digite um número.\33[m')
+        return None
+
+
+def gerarNovoId(gerenciador):
+    """
+    Gera um novo ID único para a tarefa.
+    """
+    if not gerenciador:
+        return 1
+    return max(tarefa['ID'] for tarefa in gerenciador) + 1
 
 
 def criarTarefa(gerenciador):
@@ -39,16 +61,54 @@ def criarTarefa(gerenciador):
     tarefa = {}
     
     titulos('CRIAR TAREFAS')
-        
+    
+    tarefa['ID'] = gerarNovoId(gerenciador)   
     tarefa['Título'] = input('Título: ')
     tarefa['Prioridade'] = input('Prioridade [Urgente, Alta, Média ou Baixa]: ')
     tarefa['Status'] = input('Status [Pendente, Fazendo, Concluída]: ')
     tarefa['Origem'] = input('Origem da Tarefa [E-mail, Telefone, Chamado do Sistema]: ')
     
-    gerenciador.append(tarefa.copy())
+    gerenciador.append(tarefa)
 
     print('Adicionando Tarefa...')
     sleep(0.5)
+
+
+def verificarUrgencia(gerenciador):
+    titulos('VERIFICANDO URGENCIA')
+    
+    escolha = tarefaExiste(gerenciador)
+    if escolha is None:
+        return
+    
+    for tarefa in gerenciador:
+        if tarefa['ID'] == escolha:
+            print(tarefa['ID'], tarefa['Título'], tarefa['Status'])
+
+            try:
+                oque = int(input('O que quer fazer com essa tarefa? \n' 
+                '1 - Atualizar Prioridade\n' 
+                '2 - Concluir Tarefa\n' 
+                '3 - Excluir'))
+            except ValueError:
+                print('\33[31mERRO! Digite um número.\33[m')
+                return
+            
+            if oque == 1:
+                print('Atualizar prioridade')
+            elif oque == 2:
+                print('Concluir tarefa')
+            elif oque == 3:
+                print('Excluir tarefa')
+            else:
+                print('Opção inválida')
+
+            break
+    else:
+        print('Tarefa não encontrada.')
+
+
+#def atualizarTarefa(gerenciador):
 
     
 def relatorio(gerenciador):
@@ -63,7 +123,8 @@ def relatorio(gerenciador):
     else:
         for tarefa in gerenciador:
             
-            print(f'Título: {tarefa["Título"]} | Prioridade: {tarefa["Prioridade"]} | Status: {tarefa["Status"]} | Origem: {tarefa["Origem"]}')
+            print(f'ID: {tarefa["ID"]} | Título: {tarefa["Título"]} | Prioridade: {tarefa["Prioridade"]} | Status: {tarefa["Status"]} | Origem: {tarefa["Origem"]}')
+
 
 # ==============================
 # Lista de Tarefas
@@ -92,9 +153,9 @@ while True:
     if opcao == 1:
         criarTarefa(gerenciador)
     elif opcao == 2:
-        print('Verifivcando Urgência')
+        verificarUrgencia(gerenciador)
     elif opcao == 3:
-        print('Atualizar Tarefa')
+        atualizarTarefa(gerenciador)
     elif opcao == 4:
         print('Concluindo Tarefa')
     elif opcao == 5:
