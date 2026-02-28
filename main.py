@@ -23,24 +23,38 @@ def menu():
     print('1 - Criar Tarefa')
     print('2 - Verficar de Urgência')
     print('3 - Atualizar Tarefa')
-    print('4 - Concluir Tarefa')
-    print('5 - Excluir ')
-    print('6 - Relatório')
-    print('7 - Encerrar programa')
+    print('4 - Excluir ')
+    print('5 - Relatório')
+    print('6 - Encerrar programa')
     print('=' * 35)
+
+def lerInt(msg):
+    """
+    -> Retorna um número inteiro válido
+
+    :param msg: mensagem para o input
+    """
+    
+    while True:
+        try:
+            return int(input(msg))
+        except ValueError:
+            print('\033[31mDigite um valor válido! \033[m')
 
 
 def tarefaExiste(gerenciador):
     if not gerenciador:
         print('Nenhuma tarefa cadastrada.')
         return None
-     
-    try:
-        escolha = int(input('Digite o ID da tarefa: '))
-        return escolha 
-    except ValueError:
-        print('\33[31mERRO! Digite um número.\33[m')
-        return None
+
+    escolha = lerInt('Digite o ID da tarefa: ')
+
+    for tarefa in gerenciador:
+        if tarefa['ID'] == escolha:
+            return tarefa
+
+    print('Tarefa não encontrada.')
+    return None
 
 
 def gerarNovoId(gerenciador):
@@ -85,14 +99,10 @@ def verificarUrgencia(gerenciador):
         if tarefa['ID'] == escolha:
             print(tarefa['ID'], tarefa['Título'], tarefa['Status'])
 
-            try:
-                oque = int(input('O que quer fazer com essa tarefa? \n' 
+            oque = lerInt('O que quer fazer com essa tarefa? \n' 
                 '1 - Atualizar Prioridade\n' 
                 '2 - Concluir Tarefa\n' 
-                '3 - Excluir'))
-            except ValueError:
-                print('\33[31mERRO! Digite um número.\33[m')
-                return
+                '3 - Excluir \n ')
             
             if oque == 1:
                 print('Atualizar prioridade')
@@ -140,33 +150,32 @@ while True:
     menu()
     
     while True:
-        try:
-            opcao = int(input('O que gostaria de fazer?: '))
-        except ValueError: 
-            print('\33[31mERRO! Digite um número.\33[m')
+        opcao = lerInt('O que gostaria de fazer?: ')
+    
+        if 1 <= opcao <= 6:
+            break
         else:
-            if 1 <= opcao <=7:
-                break
-            else:
-                print('\33[31mERRO! Digite uma opção valida.\33[m')
+            print('\33[31mERRO! Digite uma opção valida.\33[m')
 
     if opcao == 1:
         criarTarefa(gerenciador)
     elif opcao == 2:
         verificarUrgencia(gerenciador)
     elif opcao == 3:
-        atualizarTarefa(gerenciador)
+        print('Funcao em desenvolvimento')
+        #atualizarTarefa(gerenciador)
     elif opcao == 4:
-        print('Concluindo Tarefa')
-    elif opcao == 5:
+        print('Funcao em desenvolvimento')
         print('Excluindo Tarefa')
-    elif opcao == 6:
+    elif opcao == 5:
         relatorio(gerenciador)
-    elif opcao == 7:
+    elif opcao == 6:
         print('Encerrando programa...')
         sleep(0.5)
         break
     
+
+        
 
 
 
