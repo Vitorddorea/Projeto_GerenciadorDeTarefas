@@ -65,6 +65,61 @@ def gerarNovoId(gerenciador):
         return 1
     return max(tarefa['ID'] for tarefa in gerenciador) + 1
 
+def opcoes(txt = '', limite = 4):
+    """
+    Confere se é uma opçao válida
+    """
+    while True:
+        opcao = lerInt(txt)
+        if 1 <= opcao <= limite:
+            return opcao
+        else:
+            print('\033[31mDigite uma opção válida! \033[m')    
+
+
+def retPrioridade(txt):
+    """
+    Retona a prioridade
+    """
+    opcao = opcoes(txt, 4)
+
+    if opcao == 1:
+        return 'Urgente'
+    elif opcao == 2:
+        return 'Alta'
+    elif opcao == 3:
+        return 'Média'
+    elif opcao == 4: 
+        return 'Baixa'
+    
+
+def retStatus(txt):
+    """
+    Retorna o Status
+    """
+    
+    opcao = opcoes(txt, 3)
+
+    if opcao == 1:
+        return 'Pendente'
+    elif opcao == 2:
+        return 'Fazendo'
+    elif opcao == 3:
+        return 'Concluída'
+    
+def retOrigem(txt):
+    """
+    Retorna a Origem
+    """
+    opcao = opcoes(txt, 3)
+
+    if opcao == 1:
+        return 'E-mail'
+    elif opcao == 2:
+        return 'Telefone'
+    elif opcao == 3:
+        return 'Chamado do Sistema'
+
 
 def criarTarefa(gerenciador):
     """
@@ -78,49 +133,15 @@ def criarTarefa(gerenciador):
     
     tarefa['ID'] = gerarNovoId(gerenciador)   
     tarefa['Título'] = input('Título: ')
-    tarefa['Prioridade'] = input('Prioridade [Urgente, Alta, Média ou Baixa]: ')
-    tarefa['Status'] = input('Status [Pendente, Fazendo, Concluída]: ')
-    tarefa['Origem'] = input('Origem da Tarefa [E-mail, Telefone, Chamado do Sistema]: ')
+    tarefa['Prioridade'] = retPrioridade('Prioridade [1 - Urgente, 2 - Alta, 3 - Média ou 4 - Baixa]: ')
+    tarefa['Status'] = retStatus('Status [1 - Pendente, 2 - Fazendo, 3 - Concluída]: ')
+    tarefa['Origem'] = retOrigem('Origem da Tarefa [1 - E-mail, 2 - Telefone, 3 - Chamado do Sistema]: ')
     
     gerenciador.append(tarefa)
 
     print('Adicionando Tarefa...')
     sleep(0.5)
 
-
-def verificarUrgencia(gerenciador):
-    titulos('VERIFICANDO URGENCIA')
-    
-    escolha = tarefaExiste(gerenciador)
-    if escolha is None:
-        return
-    
-    for tarefa in gerenciador:
-        if tarefa['ID'] == escolha:
-            print(tarefa['ID'], tarefa['Título'], tarefa['Status'])
-
-            oque = lerInt('O que quer fazer com essa tarefa? \n' 
-                '1 - Atualizar Prioridade\n' 
-                '2 - Concluir Tarefa\n' 
-                '3 - Excluir \n ')
-            
-            if oque == 1:
-                print('Atualizar prioridade')
-            elif oque == 2:
-                print('Concluir tarefa')
-            elif oque == 3:
-                print('Excluir tarefa')
-            else:
-                print('Opção inválida')
-
-            break
-    else:
-        print('Tarefa não encontrada.')
-
-
-#def atualizarTarefa(gerenciador):
-
-    
 def relatorio(gerenciador):
     """
     -> Exibe um relatório com todas as tarefas cadastradas.
@@ -132,8 +153,78 @@ def relatorio(gerenciador):
         print('Nenhuma tarefa cadastrada.')
     else:
         for tarefa in gerenciador:
-            
+            print('-' * 35)
             print(f'ID: {tarefa["ID"]} | Título: {tarefa["Título"]} | Prioridade: {tarefa["Prioridade"]} | Status: {tarefa["Status"]} | Origem: {tarefa["Origem"]}')
+
+
+def verificarUrgencia(gerenciador):
+
+    titulos('TAREFAS URGENTES')
+
+    encontrou = False
+
+    for tarefa in gerenciador:
+        if tarefa['Prioridade'] == 'Urgente' and tarefa['Status'] != 'Concluída':
+            print(f'{tarefa["ID"]} - {tarefa["Título"]}')
+            encontrou = True
+
+    if not encontrou:
+        print('Nenhuma tarefa urgente.')
+
+def atualizarTarefa(gerenciador):
+    """
+    Atualiza uma tarefa 
+    """
+
+    relatorio(gerenciador)
+
+    titulos('ATUALIZAR TAREFA')
+
+    opcao = lerInt('Qual tarefa voce quer atualizar? ID: ')
+
+    encontrado = False
+
+    for tarefa in gerenciador:
+        if tarefa['ID'] == opcao:
+            oque = opcoes('O que você quer atualizar? 1 - Prioridade, 2 - Status, 3 - Origem : ', 3)
+            
+            if oque == 1:
+                tarefa['Prioridade'] = retPrioridade('Prioridade [1 - Urgente, 2 - Alta, 3 - Média ou 4 - Baixa]: ')
+            elif oque == 2:
+                tarefa['Status'] = retStatus('Status [1 - Pendente, 2 - Fazendo, 3 - Concluída]: ')
+            elif oque == 3:
+                tarefa['Origem'] = retOrigem('Origem da Tarefa [1 - E-mail, 2 - Telefone, 3 - Chamado do Sistema]: ')
+            encontrado = True
+            break
+
+    if encontrado:
+        print(f'Tarefa do ID {opcao} atualizada!')
+    else:
+        print('Tarefa não encontrada.')
+
+def deletarTarefa(gerenciador):
+    """
+    Deleta uma tarefa
+    """
+    
+    relatorio(gerenciador)
+
+    titulos('DELETAR TAREFA')
+
+    opcao = lerInt('Qual tarefa voce quer deletar? ID: ')
+
+    encontrado = False
+
+    for tarefa in gerenciador:
+        if tarefa['ID'] == opcao:
+            gerenciador.remove(tarefa)
+            encontrado = True
+            break
+    
+    if encontrado:
+        print(f'Tarefa do ID {opcao} deletada!')
+    else:
+        print('Tarefa não encontrada.')
 
 
 # ==============================
@@ -162,11 +253,9 @@ while True:
     elif opcao == 2:
         verificarUrgencia(gerenciador)
     elif opcao == 3:
-        print('Funcao em desenvolvimento')
-        #atualizarTarefa(gerenciador)
+        atualizarTarefa(gerenciador)
     elif opcao == 4:
-        print('Funcao em desenvolvimento')
-        print('Excluindo Tarefa')
+        deletarTarefa(gerenciador)
     elif opcao == 5:
         relatorio(gerenciador)
     elif opcao == 6:
@@ -174,8 +263,3 @@ while True:
         sleep(0.5)
         break
     
-
-        
-
-
-
